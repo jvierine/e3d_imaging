@@ -207,7 +207,7 @@ def core():
     plt.show()
     print(ATA.shape)
 
-def invert_basis_fun_image(r0,c,b,A0,IMG,L=110.0,err_std0=0.01):
+def invert_basis_fun_image(r0,c,b,A0,IMG,L=110.0,err_std0=0.01,svd=True,svd_reg=1000.0):
     
     plt.figure(figsize=(10,10))
     plt.subplot(221)
@@ -243,9 +243,6 @@ def invert_basis_fun_image(r0,c,b,A0,IMG,L=110.0,err_std0=0.01):
             A1[:,par_idx]=m_sim
             par_idx+=1
             
-    #u,s,vh=n.linalg.svd(A1)
-    #plt.plot(s)
-    #plt.show()
     
     r0.pixels=n.copy(IMG)
     m_sim=n.dot(A0,r0.pixels.flatten())
@@ -265,8 +262,25 @@ def invert_basis_fun_image(r0,c,b,A0,IMG,L=110.0,err_std0=0.01):
     plt.title("Error std")
     plt.colorbar()
 
+    if svd:
+        u,s,vh=n.linalg.svd(A1)
+        sinv=n.diag(s/(s**2.0+svd_reg))
+
+        #    
+        print(u.shape)
+        print(len(sinv))
+        print(vh.shape)
+        print(len(m_sim))
+        sp=n.zeros([A1.shape[1],A1.shape[0]],dtype=n.complex64)
+        sp[:sinv.shape[0],:sinv.shape[0]]=sinv
+        print(sp.shape)
+        VS=n.dot(n.conj(n.transpose(vh)),sp)
+        xhat=n.dot(n.dot(VS,n.conj(n.transpose(u))),m_sim)
+    else:
+        xhat=n.linalg.lstsq(A1,m_sim)[0]
+#    plt.plot(s)
+ #   plt.show()
     
-    xhat=n.linalg.lstsq(A1,m_sim)[0]
 
     I0=n.zeros([r0.n_x,r0.n_x],dtype=n.float32)
     for i in range(len(xhat)):
@@ -274,8 +288,8 @@ def invert_basis_fun_image(r0,c,b,A0,IMG,L=110.0,err_std0=0.01):
 
     plt.subplot(223)
     plt.pcolormesh(r0.c_x,r0.c_y,I0,cmap="gray")
-    xx,yy=n.meshgrid(x,y)
-    plt.plot(xx.flatten(),yy.flatten(),".",color="green")
+ #   xx,yy=n.meshgrid(x,y)
+#    plt.plot(xx.flatten(),yy.flatten(),".",color="green")
     plt.xlabel("E-region East-West position (m)")
     plt.ylabel("E-region North-South position (m)")
     plt.title("Estimate $\Delta h=%1.0f$ (m)"%(L))
