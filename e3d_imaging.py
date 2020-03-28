@@ -333,7 +333,7 @@ if __name__ == "__main__":
 
 #    plot_psf(r0,b,A0)
     
-    Ls=n.arange(40.0)*10.0 + 100.0
+    Ls=n.arange(40.0)*10.0 + 50.0
     for L in Ls:
         invert_basis_fun_image(r0,c,b,A0,IMG,L=L)        
 
