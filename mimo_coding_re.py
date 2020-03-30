@@ -23,7 +23,7 @@ def prn_code(L):
     code=n.exp(1j*n.random.rand(L)*n.pi*2.0)
 
 
-def sim_isr(N_pulses=100,N_rep=100,N_tx=2,N_r=200,L=32):
+def sim_isr(N_pulses=100,N_rep=1000,N_tx=2,N_r=200,L=32):
     """ 
     simulate E-region long correlation length ISR echo 
     """
@@ -112,6 +112,10 @@ def sim_isr(N_pulses=100,N_rep=100,N_tx=2,N_r=200,L=32):
 
     print(A.shape)
     print(m.shape)
+    Sinv=n.linalg.inv(n.dot(n.transpose(A),A))
+    plt.pcolormesh(Sinv)
+    plt.colorbar()
+    plt.show()
    # xhat=n.dot(Sinv,n.dot(n.transpose(A),m.flatten()))
    
     xhat=n.linalg.lstsq(A,m.flatten())[0]
